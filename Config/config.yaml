@@ -1,0 +1,13 @@
+environment: universal
+mode: zone
+multizone:
+  zone:
+    name: dockercp
+    globalAddress: grpcs://in.mesh.sync.konghq.com:443
+kmesh:
+  multizone:
+    zone:
+      konnect:
+        cpId: 43d0ab7c-2abe-4beb-9d18-ef23eba99cbc
+experimental:
+  kdsDeltaEnabled: true

@@ -1,0 +1,11 @@
+type: Dataplane
+name: app-dp
+mesh: default
+networking:
+  address: 172.20.0.11
+  inbound:
+    - port: 8080
+      servicePort: 5000
+      tags:
+        kuma.io/service: backend
+        kuma.io/protocol: http

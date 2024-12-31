@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  kuma-cp:
+    image: kong/kuma-cp:2.9.2
+    container_name: kuma-cp
+    environment:
+      - KMESH_MULTIZONE_ZONE_KDS_AUTH_CP_TOKEN_PATH=/etc/kuma/cpTokenFile
+      - KMESH_MULTIZONE_ZONE_KDS_TLS_SKIP_VERIFY=true
+    volumes:
+      - ./config/config.yaml:/etc/kuma/config.yaml
+      - ./config/cpTokenFile:/etc/kuma/cpTokenFile
+    ports:
+      - "5678:5678"  # API Server
+      - "5679:5679"  # KDS Global
+      - "5681:5681"  # KDS Zone
+      - "5685:5685"  # GUI
+    networks:
+      - mesh_docker_kuma-network
+    command: run --config-file /etc/kuma/config.yaml
+networks:
+  mesh_docker_kuma-network:
+    driver: bridge
+    external: true

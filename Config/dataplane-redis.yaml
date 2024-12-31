@@ -1,0 +1,11 @@
+type: Dataplane
+name: redis-dp
+mesh: default
+networking:
+  address: 172.20.0.13
+  inbound:
+    - port: 6379
+      servicePort: 6379
+      tags:
+        kuma.io/service: backend
+        kuma.io/protocol: tcp

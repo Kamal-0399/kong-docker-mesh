@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  app:
+    image: thefosk/kuma-demo
+    ports:
+      - "5000:5000"
+      - "15000:15000"
+    networks:
+      mesh_docker_kuma-network:
+        ipv4_address: 172.20.0.10
+    environment:
+      - REDIS_HOST=172.20.0.12
+      - REDIS_PORT=6379
+      - APP_VERSION=1.0
+      - colour=#efefef
+    depends_on:
+      - app-sidecar
+      - redis
+
+  app-sidecar:
+    image: kong/kuma-dp:2.9.2
+    command: ["run", "--cp-address=https://172.20.0.2:5678", "--dataplane-token-file=/etc/kuma/AppTokenfile", "--dataplane-file=/etc/kuma/config.yaml"]
+    networks:
+      mesh_docker_kuma-network:
+        ipv4_address: 172.20.0.11
+    volumes:
+      - ./config/AppTokenfile:/etc/kuma/AppTokenfile
+      - ./config/dataplane-demo-app.yaml:/etc/kuma/config.yaml
+    environment:
+      - KUMA_CONTROL_PLANE_URL=https://172.20.0.2:5678
+      - KUMA_APPLICATION_PROBE_PROXY_PORT=9001
+      - KUMA_DNS_CORE_DNS_BINARY_PATH=coredns
+      - KUMA_DNS_CORE_DNS_PORT=15053
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      mesh_docker_kuma-network:
+        ipv4_address: 172.20.0.12
+    depends_on:
+      - redis-sidecar
+
+  redis-sidecar:
+    image: kong/kuma-dp:2.9.2
+    command: ["run", "--cp-address=https://172.20.0.2:5678", "--dataplane-token-file=/etc/kuma/redisTokenFile", "--dataplane-file=/etc/kuma/config.yaml"]
+    networks:
+      mesh_docker_kuma-network:
+        ipv4_address: 172.20.0.13
+    volumes:
+      - ./config/redisTokenFile:/etc/kuma/redisTokenFile
+      - ./config/dataplane-redis.yaml:/etc/kuma/config.yaml
+    environment:
+      - KUMA_CONTROL_PLANE_URL=https://172.20.0.2:5678
+      - KUMA_APPLICATION_PROBE_PROXY_PORT=9001
+      - KUMA_DNS_CORE_DNS_BINARY_PATH=coredns
+      - KUMA_DNS_CORE_DNS_PORT=15053
+
+networks:
+  mesh_docker_kuma-network:
+    driver: bridge
+    external: true
