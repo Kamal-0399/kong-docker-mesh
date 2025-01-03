@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  kuma-cp:
+    image: kong/kuma-cp:2.9.2
+    container_name: kuma-cp-2
+    environment:
+      - KMESH_MULTIZONE_ZONE_KDS_TLS_SKIP_VERIFY=true
+      - KUMA_MULTIZONE_ZONE_NAME=dockercp
+      - KUMA_MULTIZONE_ZONE_GLOBAL_ADDRESS=grpcs://in.mesh.sync.konghq.com:443
+      - KMESH_MULTIZONE_ZONE_KONNECT_CP_ID=43d0ab7c-2abe-4beb-9d18-ef23eba99cbc
+      - KMESH_EXPERIMENTAL_KDS_DELTA_ENABLED=true
+      - KUMA_MODE=zone
+      - KUMA_ENVIRONMENT=universal
+      - KMESH_MULTIZONE_ZONE_KDS_AUTH_CP_TOKEN_INLINE= Token
+      - KUMA_LOG_LEVEL=debug
+
+    ports:
+      - "5678:5678"  # API Server
+      - "5679:5679"  # KDS Global
+      - "5681:5681"  # KDS Zone
+      - "5685:5685"  # GUI
+    networks:
+      mesh_docker_kuma-network:
+       ipv4_address: 172.20.0.8
+  
+    command: run
+networks:
+  mesh_docker_kuma-network:
+    driver: bridge
+    external: true
